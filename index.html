@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI GOD COSMIC</title>
+
+<style>
+
+body{font-family:Arial;background:#f2f4f8}
+
+#chat{
+height:300px;
+overflow:auto;
+border:1px solid #ccc;
+padding:10px;
+}
+
+.msg{
+margin:5px;
+padding:8px;
+border-radius:8px;
+}
+
+.user{background:#dbeafe}
+.bot{background:#e5e7eb}
+
+button{padding:8px;margin:3px}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>AI GOD COSMIC</h2>
+
+<div id="chat"></div>
+
+<input id="input" placeholder="Напиши сообщение">
+<button onclick="send()">Отправить</button>
+<button onclick="voice()">🎤</button>
+
+<hr>
+
+<button onclick="tarot()">🔮 Таро</button>
+<button onclick="runes()">🪬 Руны</button>
+<button onclick="iching()">☯ Книга Перемен</button>
+
+<script>
+
+const chat=document.getElementById("chat");
+
+function add(text,cls){
+
+ const d=document.createElement("div");
+ d.className="msg "+cls;
+ d.textContent=text;
+
+ chat.appendChild(d);
+
+ chat.scrollTop=chat.scrollHeight;
+
+}
+
+/* CHAT */
+
+async function send(){
+
+ const text=document.getElementById("input").value;
+
+ add(text,"user");
+
+ const r=await fetch("/api/chat",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({message:text})
+ });
+
+ const data=await r.json();
+
+ add(data.reply,"bot");
+
+ speak(data.reply);
+
+}
+
+/* VOICE */
+
+function voice(){
+
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+ if(!SR) return alert("voice unsupported");
+
+ const rec=new SR();
+
+ rec.lang="ru-RU";
+
+ rec.onresult=e=>{
+  document.getElementById("input").value=e.results[0][0].transcript;
+  send();
+ };
+
+ rec.start();
+
+}
+
+function speak(text){
+
+ const u=new SpeechSynthesisUtterance(text);
+
+ u.lang="ru-RU";
+
+ speechSynthesis.speak(u);
+
+}
+
+/* TAROT */
+
+async function tarot(){
+
+ const r=await fetch("/api/tarot");
+ const d=await r.json();
+
+ add("🔮 "+d.card,"bot");
+
+}
+
+/* RUNES */
+
+async function runes(){
+
+ const r=await fetch("/api/runes");
+ const d=await r.json();
+
+ add("🪬 "+d.rune,"bot");
+
+}
+
+/* I CHING */
+
+async function iching(){
+
+ const r=await fetch("/api/iching");
+ const d=await r.json();
+
+ add("☯ "+d.hex,"bot");
+
+}
+
+</script>
+
+</body>
+</html>
